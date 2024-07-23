@@ -1,24 +1,12 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const { Sequelize, DataTypes } = require('sequelize');
-
-require('dotenv').config();
-
-const sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_USER, process.env.DATABASE_PASSWORD, {
-  host: process.env.DATABASE_HOST,
-  dialect: 'mysql'
-});
-
-const User = require('./models/user')(sequelize, DataTypes);
-const Expense = require('./models/expense')(sequelize, DataTypes);
-const Category = require('./models/category')(sequelize, DataTypes);
-const PaymentMethod = require('./models/payment_method')(sequelize, DataTypes);
-const Budget = require('./models/budget')(sequelize, DataTypes);
+const { sequelize, User, Expense, Category, PaymentMethod, Budget } = require('./database');
 
 const app = express();
 app.use(bodyParser.json());
 
-// Example route for creating a new user
+// Routes
 app.post('/users', async (req, res) => {
   try {
     const user = await User.create(req.body);
@@ -28,8 +16,46 @@ app.post('/users', async (req, res) => {
   }
 });
 
-// Define other routes for CRUD operations
+app.post('/expenses', async (req, res) => {
+  try {
+    const expense = await Expense.create(req.body);
+    res.status(201).json(expense);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
-app.listen(3000, () => {
-  console.log(`Server is running on port ${process.env.DATABASE_PORT}`);
+app.post('/categories', async (req, res) => {
+  try {
+    const category = await Category.create(req.body);
+    res.status(201).json(category);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/payment-methods', async (req, res) => {
+  try {
+    const paymentMethod = await PaymentMethod.create(req.body);
+    res.status(201).json(paymentMethod);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/budgets', async (req, res) => {
+  try {
+    const budget = await Budget.create(req.body);
+    res.status(201).json(budget);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Define other CRUD routes similarly...
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
